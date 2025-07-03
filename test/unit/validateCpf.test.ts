@@ -1,4 +1,5 @@
-import { validateCpf } from "../src/validateCpf";
+import { validateCpf } from "../../src/validateCpf";
+
 
 test.each([
     "97456321558",
