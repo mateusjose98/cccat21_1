@@ -10,7 +10,7 @@ test('Deve criar uma ordem de venda', async () => {
     password: 'asdQWE123',
   };
   const responseSignup = await axios.post(
-    'http://localhost:3000/signup',
+    'http://localhost:3001/signup',
     inputSignup,
   );
   const outputSignup = responseSignup.data;
@@ -22,13 +22,13 @@ test('Deve criar uma ordem de venda', async () => {
     price: 94000,
   };
   const responsePlaceOrder = await axios.post(
-    'http://localhost:3000/place_order',
+    'http://localhost:3001/place_order',
     inputPlaceOrder,
   );
   const outputPlaceOrder = await responsePlaceOrder.data;
   expect(outputPlaceOrder.orderId).toBeDefined();
   const responseGetOrder = await axios.get(
-    `http://localhost:3000/orders/${outputPlaceOrder.orderId}`,
+    `http://localhost:3001/orders/${outputPlaceOrder.orderId}`,
   );
   const outputGetOrder = responseGetOrder.data;
   expect(outputGetOrder.marketId).toBe(inputPlaceOrder.marketId);
