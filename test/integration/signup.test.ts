@@ -17,6 +17,7 @@ test("Deve criar uma conta válida", async () => {
     expect(outputGetAccount.name).toBe(inputSignup.name);
     expect(outputGetAccount.email).toBe(inputSignup.email);
     expect(outputGetAccount.document).toBe(inputSignup.document);
+    expect(outputGetAccount.assets).toStrictEqual([]);
 });
 
 test("Não deve criar uma conta com nome inválido", async () => {
