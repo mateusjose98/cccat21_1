@@ -1,6 +1,19 @@
 import axios from 'axios';
-
+import GetAccount from '../../src/GetAccount';
+import Signup from '../../src/Signup';
+import { AccountDAODatabase, AccountDAOMemory } from '../../src/AccountDAO';
+import sinon from 'sinon';
 axios.defaults.validateStatus = () => true;
+
+let signup: Signup;
+let getAccount: GetAccount;
+
+beforeEach(() => {
+  // const accountDAO = new AccountDAOMemory();
+  const accountDAO = new AccountDAODatabase();
+  signup = new Signup(accountDAO);
+  getAccount = new GetAccount(accountDAO);
+});
 
 test('Deve criar uma conta válida', async () => {
   const inputSignup = {
@@ -9,16 +22,9 @@ test('Deve criar uma conta válida', async () => {
     document: '97456321558',
     password: 'asdQWE123',
   };
-  const responseSignup = await axios.post(
-    'http://localhost:3001/signup',
-    inputSignup,
-  );
-  const outputSignup = responseSignup.data;
+  const outputSignup = await signup.execute(inputSignup);
   expect(outputSignup.accountId).toBeDefined();
-  const responseGetAccount = await axios.get(
-    `http://localhost:3001/accounts/${outputSignup.accountId}`,
-  );
-  const outputGetAccount = responseGetAccount.data;
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId);
   expect(outputGetAccount.name).toBe(inputSignup.name);
   expect(outputGetAccount.email).toBe(inputSignup.email);
   expect(outputGetAccount.document).toBe(inputSignup.document);
@@ -32,13 +38,9 @@ test('Não deve criar uma conta com nome inválido', async () => {
     document: '97456321558',
     password: 'asdQWE123',
   };
-  const responseSignup = await axios.post(
-    'http://localhost:3001/signup',
-    inputSignup,
+  await expect(() => signup.execute(inputSignup)).rejects.toThrow(
+    'Invalid name',
   );
-  const outputSignup = responseSignup.data;
-  expect(responseSignup.status).toBe(422);
-  expect(outputSignup.error).toBe('Invalid name');
 });
 
 test('Não deve criar uma conta com email inválido', async () => {
@@ -48,13 +50,9 @@ test('Não deve criar uma conta com email inválido', async () => {
     document: '97456321558',
     password: 'asdQWE123',
   };
-  const responseSignup = await axios.post(
-    'http://localhost:3001/signup',
-    inputSignup,
+  await expect(() => signup.execute(inputSignup)).rejects.toThrow(
+    'Invalid email',
   );
-  const outputSignup = responseSignup.data;
-  expect(responseSignup.status).toBe(422);
-  expect(outputSignup.error).toBe('Invalid email');
 });
 
 test.each(['111', 'abc', '7897897897'])(
@@ -66,13 +64,9 @@ test.each(['111', 'abc', '7897897897'])(
       document,
       password: 'asdQWE123',
     };
-    const responseSignup = await axios.post(
-      'http://localhost:3001/signup',
-      inputSignup,
+    await expect(() => signup.execute(inputSignup)).rejects.toThrow(
+      'Invalid document',
     );
-    const outputSignup = responseSignup.data;
-    expect(responseSignup.status).toBe(422);
-    expect(outputSignup.error).toBe('Invalid document');
   },
 );
 
@@ -83,11 +77,99 @@ test('Não deve criar uma conta com senha inválida', async () => {
     document: '97456321558',
     password: 'asdQWE',
   };
-  const responseSignup = await axios.post(
-    'http://localhost:3001/signup',
-    inputSignup,
+  await expect(() => signup.execute(inputSignup)).rejects.toThrow(
+    'Invalid password',
   );
-  const outputSignup = responseSignup.data;
-  expect(responseSignup.status).toBe(422);
-  expect(outputSignup.error).toBe('Invalid password');
+});
+
+// casos de teste com sinon
+// stub: substitui o método original por uma função que retorna um valor fixo
+test('Deve criar uma conta válida com stub', async () => {
+  const saveAccountStub = sinon
+    .stub(AccountDAODatabase.prototype, 'saveAccount')
+    .resolves();
+  const inputSignup = {
+    name: 'John Doe',
+    email: 'john.doe@gmail.com',
+    document: '97456321558',
+    password: 'asdQWE123',
+  };
+  const getAccountByIdStub = sinon
+    .stub(AccountDAODatabase.prototype, 'getAccountById')
+    .resolves(inputSignup);
+  const getAccountAssets = sinon
+    .stub(AccountDAODatabase.prototype, 'getAccountAssets')
+    .resolves([]);
+  const outputSignup = await signup.execute(inputSignup);
+  expect(outputSignup.accountId).toBeDefined();
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId);
+  expect(outputGetAccount.name).toBe(inputSignup.name);
+  expect(outputGetAccount.email).toBe(inputSignup.email);
+  expect(outputGetAccount.document).toBe(inputSignup.document);
+  // restaura o método original
+  saveAccountStub.restore(); 
+  getAccountByIdStub.restore();
+  getAccountAssets.restore();
+});
+
+// spy: monitora a chamada do método original, mas não altera seu comportamento
+test('Deve criar uma conta válida com spy', async () => {
+  const saveAccountSpy = sinon.spy(AccountDAODatabase.prototype, 'saveAccount');
+  const inputSignup = {
+    name: 'John Doe',
+    email: 'john.doe@gmail.com',
+    document: '97456321558',
+    password: 'asdQWE123',
+  };
+  const outputSignup = await signup.execute(inputSignup);
+  expect(outputSignup.accountId).toBeDefined();
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId);
+  expect(outputGetAccount.name).toBe(inputSignup.name);
+  expect(outputGetAccount.email).toBe(inputSignup.email);
+  expect(outputGetAccount.document).toBe(inputSignup.document);
+  expect(saveAccountSpy.calledOnce).toBe(true); 
+  expect(
+    saveAccountSpy.calledWith(Object.assign(inputSignup, outputSignup)),
+  ).toBe(true);
+  saveAccountSpy.restore();
+});
+
+// mock: cria um objeto simulado que substitui o original, permitindo definir expectativas e comportamentos
+test('Deve criar uma conta válida com mock', async () => {
+  const accountDAOMock = sinon.mock(AccountDAODatabase.prototype);
+  accountDAOMock.expects('saveAccount').once().resolves();
+  const inputSignup = {
+    name: 'John Doe',
+    email: 'john.doe@gmail.com',
+    document: '97456321558',
+    password: 'asdQWE123',
+  };
+  accountDAOMock.expects('getAccountById').once().resolves(inputSignup);
+  accountDAOMock.expects('getAccountAssets').once().resolves([]);
+  const outputSignup = await signup.execute(inputSignup);
+  expect(outputSignup.accountId).toBeDefined();
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId);
+  expect(outputGetAccount.name).toBe(inputSignup.name);
+  expect(outputGetAccount.email).toBe(inputSignup.email);
+  expect(outputGetAccount.document).toBe(inputSignup.document);
+  accountDAOMock.verify();
+  accountDAOMock.restore();
+});
+
+test('Deve criar uma conta válida com fake', async () => {
+  const accountDAO = new AccountDAOMemory();
+  signup = new Signup(accountDAO);
+  getAccount = new GetAccount(accountDAO);
+  const inputSignup = {
+    name: 'John Doe',
+    email: 'john.doe@gmail.com',
+    document: '97456321558',
+    password: 'asdQWE123',
+  };
+  const outputSignup = await signup.execute(inputSignup);
+  expect(outputSignup.accountId).toBeDefined();
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId);
+  expect(outputGetAccount.name).toBe(inputSignup.name);
+  expect(outputGetAccount.email).toBe(inputSignup.email);
+  expect(outputGetAccount.document).toBe(inputSignup.document);
 });

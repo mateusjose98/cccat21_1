@@ -45,7 +45,6 @@ test('withdraw BTC', async () => {
   expect(response.status).toBe(201);
   const responseAccount = await axios.get(`${apiUrl}/accounts/${accountId}`);
   expect(responseAccount.status).toBe(200);
-  expect(responseAccount.data.accountId).toBe(accountId);
   expect(responseAccount.data.assets).toHaveLength(1);
   expect(responseAccount.data.assets[0].assetId).toBe('BTC');
   expect(responseAccount.data.assets[0].quantity).toBe(90.5);

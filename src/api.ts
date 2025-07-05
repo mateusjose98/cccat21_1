@@ -4,17 +4,19 @@ import {
   getAccount,
   getOrder,
   placeOrder,
-  signup,
   withdraw,
 } from './application';
+import Signup from './Signup';
+import { AccountDAODatabase } from './AccountDAO';
 
 const app = express();
 app.use(express.json());
-
+const accountDAO = new AccountDAODatabase();
+const signup = new Signup(accountDAO);
 app.post('/signup', async (req: Request, res: Response) => {
   const input = req.body;
   try {
-    const output = await signup(input);
+    const output = await signup.execute(input);
     res.json(output);
   } catch (e: any) {
     res.status(422).json({

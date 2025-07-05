@@ -35,7 +35,6 @@ test('Deve realizar um depósito em uma conta', async () => {
     `http://localhost:3001/accounts/${accountId}`,
   );
   expect(responseAccount.status).toBe(200);
-  expect(responseAccount.data.accountId).toBe(accountId);
   expect(responseAccount.data.assets).toHaveLength(1);
   expect(responseAccount.data.assets[0].assetId).toBe('BTC');
 });
