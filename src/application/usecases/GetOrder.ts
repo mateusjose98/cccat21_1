@@ -1,4 +1,4 @@
-import OrderRepository from "../../infra/repository/OrderRepository";
+import OrderRepository from '../../infra/repository/OrderRepository';
 
 export default class GetOrder {
   constructor(readonly orderRepository: OrderRepository) {}
@@ -14,6 +14,8 @@ export default class GetOrder {
       price: orderData.price,
       status: orderData.status,
       timestamp: orderData.timestamp,
+      fillQuantity: orderData.fillQuantity,
+      fillPrice: orderData.fillPrice,
     };
     return order;
   }

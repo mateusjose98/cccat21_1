@@ -1,4 +1,3 @@
-
 import Account from '../../domain/Account';
 import AccountAsset from '../../domain/AccountAsset';
 import DatabaseConnection from '../database/DatabaseConnection';

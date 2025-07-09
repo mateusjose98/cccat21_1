@@ -11,7 +11,7 @@ import GetAccount from '../../src/application/usecases/GetAccount';
 import {
   AccountRepositoryDatabase,
   AccountRepositoryMemory,
-} from '../../src/infra/repository/AccountDAO';
+} from '../../src/infra/repository/AccountRepository';
 
 axios.defaults.validateStatus = () => true;
 

@@ -4,7 +4,7 @@ import Signup from '../../src/application/usecases/Signup';
 import DatabaseConnection, {
   PgPromiseAdapter,
 } from '../../src/infra/database/DatabaseConnection';
-import { AccountRepositoryDatabase } from '../../src/infra/repository/AccountDAO';
+import { AccountRepositoryDatabase } from '../../src/infra/repository/AccountRepository';
 import { OrderRepositoryDatabase } from '../../src/infra/repository/OrderRepository';
 
 let connection: DatabaseConnection;

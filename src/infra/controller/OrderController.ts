@@ -1,3 +1,4 @@
+import GetDepth from '../../application/usecases/GetDepth';
 import GetOrder from '../../application/usecases/GetOrder';
 import PlaceOrder from '../../application/usecases/PlaceOrder';
 import HttpServer from '../http/HttpServer';
@@ -7,6 +8,7 @@ export default class OrderController {
     httpServer: HttpServer,
     placeOrder: PlaceOrder,
     getOrder: GetOrder,
+    getDepth: GetDepth,
   ) {
     httpServer.route('post', '/place_order', async (params: any, body: any) => {
       const input = body;
@@ -20,6 +22,16 @@ export default class OrderController {
       async (params: any, body: any) => {
         const orderId = params.orderId;
         const output = await getOrder.execute(orderId);
+        return output;
+      },
+    );
+
+    httpServer.route(
+      'get',
+      '/depth/:marketId',
+      async (params: any, body: any) => {
+        const marketId = params.marketId.replace('-', '/');
+        const output = await getDepth.execute(marketId, 0);
         return output;
       },
     );

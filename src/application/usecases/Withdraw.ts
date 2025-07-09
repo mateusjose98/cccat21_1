@@ -1,4 +1,4 @@
-import AccountRepository from '../../infra/repository/AccountDAO';
+import AccountRepository from '../../infra/repository/AccountRepository';
 
 export default class Withdraw {
   constructor(readonly accountRepository: AccountRepository) {}

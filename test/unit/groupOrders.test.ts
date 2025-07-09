@@ -8,6 +8,7 @@ test('Deve agrupar as ordens', () => {
     Order.create('', '', 'sell', 1, 94000),
   ];
   const index = groupOrders(orders, 0);
+  console.log(index);
   expect(index.sell[94000]).toBe(3);
 });
 
@@ -28,6 +29,7 @@ test('Deve agrupar as ordens', () => {
     Order.create('', '', 'sell', 1, 94600),
   ];
   const index = groupOrders(orders, 0);
+  console.log(index);
   expect(index.sell[94000]).toBe(1);
   expect(index.sell[94500]).toBe(1);
   expect(index.sell[94600]).toBe(1);

@@ -1,11 +1,10 @@
-
-import AccountRepository from '../../infra/repository/AccountDAO';
 import Account from '../../domain/Account';
+import AccountRepository from '../../infra/repository/AccountRepository';
 
 export default class Signup {
   constructor(readonly accountRepository: AccountRepository) {}
 
-  async execute(input: any): Promise<any> {
+  async execute(input: Input): Promise<Output> {
     const account = Account.create(
       input.name,
       input.email,
@@ -18,3 +17,14 @@ export default class Signup {
     };
   }
 }
+
+type Input = {
+  name: string;
+  email: string;
+  document: string;
+  password: string;
+};
+
+type Output = {
+  accountId: string;
+};

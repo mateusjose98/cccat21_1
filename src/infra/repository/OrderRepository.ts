@@ -3,6 +3,7 @@ import DatabaseConnection from '../database/DatabaseConnection';
 
 export default interface OrderRepository {
   saveOrder(order: Order): Promise<void>;
+  updateOrder(order: Order): Promise<void>;
   getOrderById(orderId: string): Promise<Order>;
   getOrdersByMarketIdAndStatus(
     marketId: string,
@@ -16,7 +17,7 @@ export class OrderRepositoryDatabase implements OrderRepository {
 
   async saveOrder(order: Order) {
     await this.connection.query(
-      'insert into ccca.order (order_id, market_id, account_id, side, quantity, price, status, timestamp) values ($1, $2, $3, $4, $5, $6, $7, $8)',
+      'insert into ccca.order (order_id, market_id, account_id, side, quantity, price, status, timestamp, fill_quantity, fill_price) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
       [
         order.orderId,
         order.marketId,
@@ -26,6 +27,8 @@ export class OrderRepositoryDatabase implements OrderRepository {
         order.price,
         order.status,
         order.timestamp,
+        order.fillQuantity,
+        order.fillPrice,
       ],
     );
   }
@@ -35,6 +38,7 @@ export class OrderRepositoryDatabase implements OrderRepository {
       'select * from ccca.order where order_id = $1',
       [orderId],
     );
+    if (!orderData) throw new Error('Order not found');
     return new Order(
       orderData.order_id,
       orderData.market_id,
@@ -44,6 +48,8 @@ export class OrderRepositoryDatabase implements OrderRepository {
       parseFloat(orderData.price),
       orderData.status,
       orderData.timestamp,
+      parseFloat(orderData.fill_quantity),
+      parseFloat(orderData.fill_price),
     );
   }
 
@@ -67,6 +73,8 @@ export class OrderRepositoryDatabase implements OrderRepository {
           parseFloat(orderData.price),
           orderData.status,
           orderData.timestamp,
+          parseFloat(orderData.fill_quantity),
+          parseFloat(orderData.fill_price),
         ),
       );
     }
@@ -75,5 +83,12 @@ export class OrderRepositoryDatabase implements OrderRepository {
 
   async deleteAll(): Promise<void> {
     await this.connection.query('delete from ccca.order', []);
+  }
+
+  async updateOrder(order: Order): Promise<void> {
+    await this.connection.query(
+      'update ccca.order set fill_quantity = $1, fill_price = $2, status = $3 where order_id = $4',
+      [order.fillQuantity, order.fillPrice, order.status, order.orderId],
+    );
   }
 }

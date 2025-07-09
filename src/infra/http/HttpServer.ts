@@ -1,6 +1,5 @@
 import express, { Express, Request, Response } from 'express';
 
-
 export default interface HttpServer {
   route(method: string, url: string, callback: Function): void;
   listen(port: number): void;
@@ -12,7 +11,6 @@ export class ExpressAdapter implements HttpServer {
   constructor() {
     this.app = express();
     this.app.use(express.json());
-
   }
 
   route(
@@ -25,6 +23,7 @@ export class ExpressAdapter implements HttpServer {
         const output = await callback(req.params, req.body);
         res.json(output);
       } catch (e: any) {
+        console.error('Error in route handler:', e);
         res.status(422).json({
           error: e.message,
         });

@@ -1,5 +1,5 @@
 import AccountAsset from '../../domain/AccountAsset';
-import AccountDAO from '../../infra/repository/AccountDAO';
+import AccountDAO from '../../infra/repository/AccountRepository';
 
 export default class Deposit {
   constructor(readonly accountDAO: AccountDAO) {}
